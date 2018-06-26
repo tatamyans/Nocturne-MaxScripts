@@ -60,7 +60,7 @@ struct deformable
 			ncaptris += ld[3]			
 		)
 		
-		if skl == undefined do skl = skeleton()
+		if skl == undefined do skl = noc_skl()
 		skl.name = gets f 
 		
 		--Parts
@@ -106,10 +106,11 @@ struct deformable
 		--capTriList
 		skipPastString f "// capTriList: matching part"
 		for i = 1 to ncapTris do ( capfaces[i] = gets f as integer )
-		
+
 		skipPastString f "// texture list"
 		for i = 1 to ntextures do 	( textures[i] = (filterString ( gets f ) ".")[1] )
 		
+		skipPastString f "// bone origin list"
 		for i = 1 to nbones do 
 		( 
 			v = getarr f t:float 
@@ -262,7 +263,7 @@ struct deformable
 	),
 
 	fn set_skin lod =
-	(	
+	(
 		sliderTime = 0		
 		
 		m = ld_mshs[lod]	
@@ -276,11 +277,9 @@ struct deformable
 		for b in skl.bones do skinOps.addbone sk b 0
 		completeRedraw()
 		
-		
 		b0 = for i = 1 to skl.bones.count collect i
 		w0 = for i = 1 to skl.bones.count collect 0		
-		for i = 1 to m.numverts do ( skinOps.ReplaceVertexWeights sk i b0arr w0arr )
-		
+		for i = 1 to m.numverts do ( skinOps.ReplaceVertexWeights sk i b0 w0 )
 		
 		sk.bone_limit = 3
 		sk.clearZeroLimit = 0.01

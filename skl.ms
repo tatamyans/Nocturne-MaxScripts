@@ -9,12 +9,12 @@ struct skl_motion
 	markers 			= #()
 )
 
-struct skeleton
+struct noc_skl
 (
 	name				= "",
 	
 	root,
-	scale				= 10.0,
+	scale				= 12.0,
 	bones			= #(),
 	
 	version			= 3,	
@@ -36,16 +36,21 @@ struct skeleton
 	motions 			= #(),
 	
 	fn parse pth = 
-	(
+	(	
+		oldpos = _pos 
+		oldEOL = _eol
+		_pos = 0
+		_eol = getEOL pth
+		
 		local f = undefined
-		try f = openFile pth catch print pth 
+		f = openFile pth mode:"rb"
 		
 		name = getFilenameFile pth 
 		version	= gets f t:integer 
-		a	 		= getarr f t:integer
-		nBones 	= a[1]
-		nFrames	= a[2]
-		nAngles = nBones * nFrames
+		a	 		= getarr f t:integer		
+		nbones 	= a[1]
+		nframes	= a[2]
+		nangles 	= nbones * nframes
 		
 		--bones list
 		for i = 1 to nbones do blist[i] = ( getarr2 f #(string, integer) sep:",\"" )
@@ -53,21 +58,19 @@ struct skeleton
 		
 		--angles
 		skipPastString f "// angle list: w,x,y,z"
-		offs_angles = filepos f
-		if version == 4 do seek f (offs_angles + nangles * 16)
+		offs_angles = _pos --filepos f 
+		if version == 4 do ( seek f (_pos + nangles * 16) ) 
 		
-		skipPastString f "// root offset list: x,y,z"
+		skipPastString f "// root offset list: x,y,z" 
+		rootoffs 		= for i = 1 to nframes collect ( getarr f t:float )
+		canceled 	= for i = 1 to nframes collect ( getarr f t:float )		
 		
-		rootoffs = for i = 1 to nframes collect ( getarr f t:float )
-		canceled = for i = 1 to nframes collect ( getarr f t:float )
+		mversion	= gets f as integer
+		nstates		= gets f as integer
+		for i = 1 to nstates do states[i] = gets f	
 		
-		--motions
-		mversion = gets f as integer
-		n = gets f as integer
-		for i = 1 to n do states[i] = gets f	
-		
-		n = gets f as integer
-		for i = 1 to n do
+		nmotions = gets f as integer		
+		for i = 1 to nmotions do
 		(
 			m = skl_motion()
 			m.index = i - 1
@@ -100,6 +103,9 @@ struct skeleton
 		--reference bone org list: x,y,z
 		for i = 1 to nBones do ( brefs[i] = getv3 f )
 		
+		
+		_pos	= oldpos
+		_eol	= oldEOL 
 		fclose f		
 	),
 	
@@ -162,12 +168,13 @@ struct skeleton
 		
 		if version == 3 do
 		(			
-			f = memStreamMgr.openFile pth
-			f.seek offs_angles #seek_set
+			f = memStreamMgr.openFile pth 
+			f.seek offs_angles #seek_set		--filepos treats LF as 2 bytes since max11-12!
+			--do str = f.readline() while str != "// angle list: w,x,y,z" and f.pos() < f.size()  
 			getangles = getangles3
 		)		
 		if version == 4 do
-		(			
+		( 
 			f = fopen pth "rb"
 			fseek f offs_angles #seek_set			
 			getangles = getangles4
@@ -177,7 +184,6 @@ struct skeleton
 		r0  = at time 0 root.transform
 		
 		FrameTagManager.ResetFrameTags()
-		
 		print "Loading motions. Please wait..."
 		
 		with animate on
@@ -264,8 +270,9 @@ struct skeleton
 	(		
 		format "version: %\n" version
 		
-		local f = undefined		
-		try f = openFile pth mode:"w" catch (print "Unable to open: " + pth as string; return 0)		
+		local f = undefined
+		f = openFile pth mode:"w" 
+		if f == undefined do (print "Unable to open: " + pth as string; return 0)		
 		
 		fpos = 0
 		
@@ -284,8 +291,6 @@ struct skeleton
 		--------------------------------------------------------------------------------
 		format "// angle list: w,x,y,z\n" to:f
 		
-		--fn writeangles3 f q =  ( format "%,%,%,%\n"  q.w q.x q.z -q.y to:f )
-		
 		fn writeangles3 f q =  ( format "%,%,%,%\n"  q.w -q.y q.x q.z to:f )
 		
 		fn writeangles4 f q = ( writefloat f q.w; writefloat f q.x; writefloat f q.z; writefloat f -q.y)
@@ -299,7 +304,6 @@ struct skeleton
 			fseek f fpos #seek_set
 			writeangles = writeangles4
 		)
-		
 		
 		tr0 = for b in bones collect ( at time 0 b.transform )
 		
@@ -318,13 +322,8 @@ struct skeleton
 				
 				for j = 1 to bones.count do
 				(	
-					
 					tr1 = at time tm bones[j].transform
-					--q = (inverse (tr1 * inverse tr0[j])).rotation 		--orig
-					
 					q = (inverse (tr1 * inverse tr0[j])).rotation
-						
-						
 					writeangles f q					
 				)
 			)
@@ -332,13 +331,22 @@ struct skeleton
 			tm_start += frm_count  
 		)
 		
+		if version == 4 then 
+		(
+			fpos = ftell f
+			fclose f
+		)	
+		else 
+		(
+			fpos = filepos f
+			close f
+		)
+		
 		--------------------------------------------------------------------------------
 		--------------------------------------------------------------------------------
 		
 		if root == undefined do root = bones[1].parent
 		
- 		if version == 4 then fpos = ftell f else fpos = filepos f
-		fclose f
 		f = openFile pth mode:"a"
 		fseek f fpos #seek_set
 		if version == 4 do format "\n" to:f

@@ -14,20 +14,20 @@ struct clothes
 	(
 		local f = openfile pth
 		
-		skipToNextLine f
+		skip f
 		version = getss f t:integer 
 		model = getss f
 		
 		--weight,gravity,dampen,spring,bodyFriction,floorFriction,windArea,momInert		
 		params 			= getarr f t:float 
-		skipToNextLine f
+		skip f
 		
 		transparency	= getss f t:float  
 		dSided 			= getss f t:integer 
 		nLockedVts		= getss f t:integer 
 		
 		vts = for i = 1 to nLockedVts collect ( 1 + gets f t:integer )
-		skipToNextLine f
+		skip f
 		
 		fmt = #(string, float, float, float, float, float, float, float, float, float) 
 		

@@ -1,49 +1,53 @@
-fn round val = ( floor ( val + 0.5 ) )
+--Since max12 filestream treats Unix EOL as 2 bytes instead of 1
+_eol	= 2
+_pos	= 0
 
-fn skip f n:1 = 
-(  
-	for i = 1 to n do ( skipToNextLine f ) 
+fn getEOL pth = 
+(
+	local f = fopen pth "r"
+	fseek f -2 #seek_end
+	eol = readshort f
+	fclose f
+	if eol != 2573 then 1 else 2	
 )
 
-fn gets f t:string =
+fn skip f n:1 = ( for i = 1 to n do ( _pos += ((readline f).count + _eol )) )
+
+fn skipPastString f str = 
+( 
+	local s = ""
+	while s != str do (s = readline f; _pos += (s.count + _eol) ) 
+	
+)
+
+fn gets f t:string s:0 =
 (
-	s = ""
-	do ( s = readline f ) while matchpattern s pattern:"//*"
-	--print s
-	s as t
+	str = ""
+	do ( str = readline f; _pos += (str.count + _eol) ) while matchpattern str pattern:"//*"
+	skip f n:s
+	str as t
 ) 
 
-fn getss f t:string =
-(
-	s = ""
-	do ( s = readline f ) while matchpattern s pattern:"//*"
-	skipToNextLine f 
-	s as t
-) 
- 
 fn getarr f sep:", \t" t:string = 
 (
 	arr = filterString ( gets f ) sep
-	for e in arr collect e as t
+	for e in arr collect e as t	
 )
 
 fn getarr2 f t sep:", \t" = 
 (
 	arr = filterString ( gets f ) sep
-	for i = 1 to t.count collect arr[i] as (t[i])
+	for i = 1 to t.count collect arr[i] as (t[i])	
 )
 
 fn getv3 f sep:", \t" = 
 (
-	v = getarr f sep:sep t:float	
+	v = getarr f sep:sep t:float
 	Point3 v[1] v[2] v[3]
 )
 
-fn skipPastString f str =
-(
-	skipToString f str
-	skip f
-)
+
+fn round val = ( floor ( val + 0.5 ) )
 
 fn sgBit m fc sg = 
 ( 
@@ -118,7 +122,6 @@ fn break_mesh m =
 	
 	return mshs
 )
-
 
 fn bname_cmp a b = 
 (	 

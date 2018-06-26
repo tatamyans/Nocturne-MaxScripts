@@ -1,7 +1,7 @@
 (	
 	struct tritools
 	(
-		txtpath	= #( 
+		txtpath	= #(
 			@"C:\Dev\Nocturne\ART\PNG\",
 			@"C:\Dev\BlairWitch1\ART\PNG\"
 		),
@@ -10,6 +10,7 @@
 	)
 	
 	global TRI
+	TRI = undefined
 	if TRI == undefined do  TRI = tritools() 
 	
 	include "util.ms"
@@ -19,7 +20,6 @@
 	include "cth.ms"
 	
 	tri.dfm	= deformable()
-	
 	
 	
 	fn add_col dgv header width readonly:false =
@@ -520,10 +520,10 @@
 			if tri.skl != undefined then 
 			(
 				motions = deepcopy tri.skl.motions
-				tri.skl = skeleton()
+				tri.skl = noc_skl()
 				tri.skl.motions = motions
 			) 
-			else tri.skl = skeleton()
+			else tri.skl = noc_skl()
 			skl = tri.skl
 			skl.name	= obj.name
 			
@@ -538,7 +538,7 @@
 			pth = getOpenFileName caption:"Open SKL File:" types:"Skeleton(*.SKL)|*.skl|*.txt|"
 			if pth == undefined do return 0
 			
-			tri.skl = skeleton()
+			tri.skl = noc_skl()
 			skl = tri.skl
 			
 			skl.load pth anim:true 
@@ -571,7 +571,7 @@
 		
 		on SklRollout open do
 		( 
-			if tri.skl == undefined do tri.skl = skeleton()
+			if tri.skl == undefined do tri.skl = noc_skl()
 			redraw()
 		)
 	)
