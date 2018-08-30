@@ -15,16 +15,16 @@ struct clothes
 		local f = openfile pth
 		
 		skip f
-		version = getss f t:integer 
-		model = getss f
+		version = gets f t:integer s:1
+		model = gets f s:1
 		
 		--weight,gravity,dampen,spring,bodyFriction,floorFriction,windArea,momInert		
 		params 			= getarr f t:float 
 		skip f
 		
-		transparency	= getss f t:float  
-		dSided 			= getss f t:integer 
-		nLockedVts		= getss f t:integer 
+		transparency	= gets f t:float s:1
+		dSided 			= gets f t:integer s:1
+		nLockedVts		= gets f t:integer s:1
 		
 		vts = for i = 1 to nLockedVts collect ( 1 + gets f t:integer )
 		skip f
