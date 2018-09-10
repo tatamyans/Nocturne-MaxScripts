@@ -6,7 +6,7 @@
 			@"C:\Dev\BlairWitch1\ART\PNG\"
 		),
 		
-		skl, dfm, kfm, cth, rout	
+		skl, dfm, kfm, cth, geo, rout	
 	)
 	
 	global TRI
@@ -18,6 +18,7 @@
 	include "dfm.ms"
 	include "kfm.ms"
 	include "cth.ms"
+	include "geo.ms"
 	
 	tri.dfm	= deformable()
 	
@@ -868,6 +869,27 @@
 		
 	)
 	
+	rollout GeoRollout "GEO" width:240 height:280
+	( 
+		button 		btn_load 	"Load" 	pos:[2,4] 	width:45 	height:20  
+		
+		on btn_load pressed do
+		(
+			pth = getOpenFileName caption:"Open SET File:" types:"Set (*.SET)|*.set|"
+			if pth == undefined do return 0
+			
+			tri.geo = gameset()
+			tri.geo.load pth 
+			
+			"OK"
+		) 
+		
+		on GeoRollout open do
+		( 
+			
+		)
+	)
+	
 	rollout OptRollout "Parameters" width:240 height:280 
 	(		
 		dotNetControl	dgv_textures	"System.Windows.Forms.DataGridView" pos:[4,4] width:210 height:90
@@ -922,10 +944,11 @@
 		
 		on ToolsRollout open do
 		( 	  
-			AddSubRollout ToolsRollout.subroll DfmRollout
+			AddSubRollout ToolsRollout.subroll DfmRollout 
+			AddSubRollout ToolsRollout.subroll SklRollout		rolledUp:true
 			AddSubRollout ToolsRollout.subroll CthRollout 	rolledUp:true
 			AddSubRollout ToolsRollout.subroll KfmRollout	rolledUp:true  
-			AddSubRollout ToolsRollout.subroll SklRollout		rolledUp:true
+			AddSubRollout ToolsRollout.subroll GeoRollout	rolledUp:true
 			AddSubRollout ToolsRollout.subroll OptRollout	rolledUp:true
 		)
 	)

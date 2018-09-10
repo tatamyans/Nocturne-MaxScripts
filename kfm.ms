@@ -4,7 +4,7 @@ struct keyframed
 	version		= 8,
 	textures		= #(),
 	parts			= #(),
-	scale 		= 0.038915,
+	scale 		= 0.00391, --0.0038915,
 	params 		= #(0, 0, 0, 0),
 	
 	msh,
@@ -90,7 +90,7 @@ struct keyframed
 		buildTVFaces m false
 		for i = 1 to m.numfaces do ( setTVFace m i tfcs[i] ) 
 		
-		m.transform *= (matrix3 [1,0,0] [0,0,1] [0,-1,0] [0,0,0])			
+		m.transform *= (matrix3 [-1,0,0] [0,0,1] [0,-1,0] [0,0,0])			
 		msh = m
 		msh.name = name
 		

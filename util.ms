@@ -14,7 +14,7 @@ fn getEOL pth =
 fn skip f n:1 = ( for i = 1 to n do ( _pos += ((readline f).count + _eol )) )
 
 fn skipPastString f str = 
-( 
+(
 	local s = ""
 	while s != str do (s = readline f; _pos += (s.count + _eol) ) 
 	
@@ -23,7 +23,7 @@ fn skipPastString f str =
 fn gets f t:string s:0 =
 (
 	str = ""
-	do ( str = readline f; _pos += (str.count + _eol) ) while matchpattern str pattern:"//*"
+	do ( str = readline f; _pos += (str.count + _eol) ) while (str == "" or matchpattern str pattern:"//*")
 	skip f n:s
 	str as t
 ) 

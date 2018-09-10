@@ -14,7 +14,7 @@ struct noc_skl
 	name				= "",
 	
 	root,
-	scale				= 12.0,
+	scale				= 1.0,
 	bones			= #(),
 	
 	version			= 3,	
@@ -119,7 +119,11 @@ struct noc_skl
 	fn set_bones brefs:undefined =
 	(
 		if brefs == undefined do brefs = this.brefs
-			
+		
+		maxver = maxversion()
+		scalemod = 10
+		if maxver[1] > 12000 do scalemod = 25
+		
 		for i = 1 to blist.count do
 		(
 			bname 	= blist[i][1]
@@ -136,9 +140,10 @@ struct noc_skl
 			)
 			
 			v2 = copy v1
-			v2.y += 1			
+			v2.y += 1
 			b = BoneSys.CreateBone v1 v2 [0, 0, 1] 
 			
+			b.scale 		*= scale / scalemod
 			b.name		= bname
 			b.parent		= parent
 			bones[i]		= b
