@@ -120,7 +120,10 @@ struct noc_skl
 	(
 		if brefs == undefined do brefs = this.brefs
 		
-		mxver = maxversion() 
+		bsz = 1
+		maxver = maxversion()
+		if maxver[1] > 12000 do
+			bsz = 0.1		
 		
 		for i = 1 to blist.count do
 		(
@@ -139,16 +142,16 @@ struct noc_skl
 			
 			v2 = copy v1
 			v2.y += 1
-			b = BoneSys.CreateBone v1 v2 [0, 0, 1] 
+			b = BoneSys.CreateBone v1 v2 [0, 0, bsz] 
 			
 			b.name		= bname
-			b.parent		= parent
-			if maxver[1] > 12000 do 
-			(
-				b.width	= 0.1
-				b.height	= 0.1
-			)
-			bones[i]		= b
+			b.parent		= parent 
+			b.width		= 0.1
+			b.height		= 0.1
+			b.scale		= [-0.3, -1.0, -1.0]
+			resetScale b 
+			
+			bones[i] = b
 		)
 		
 		root = point()
