@@ -120,9 +120,7 @@ struct noc_skl
 	(
 		if brefs == undefined do brefs = this.brefs
 		
-		maxver = maxversion()
-		scalemod = 10
-		if maxver[1] > 12000 do scalemod = 25
+		mxver = maxversion() 
 		
 		for i = 1 to blist.count do
 		(
@@ -143,9 +141,13 @@ struct noc_skl
 			v2.y += 1
 			b = BoneSys.CreateBone v1 v2 [0, 0, 1] 
 			
-			b.scale 		*= scale / scalemod
 			b.name		= bname
 			b.parent		= parent
+			if maxver[1] > 12000 do 
+			(
+				b.width	= 0.1
+				b.height	= 0.1
+			)
 			bones[i]		= b
 		)
 		

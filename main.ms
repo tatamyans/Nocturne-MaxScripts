@@ -653,7 +653,8 @@
 		(
 			if obj == undefined do return 0
 			
-			if classof obj != Editable_Mesh do return messagebox "Not an Editable_Mesh"		
+			if classof obj != Editable_Mesh do return messagebox "Not an Editable_Mesh"	
+			max modify mode
 			sk = obj.modifiers[#skin]		
 			if sk == undefined do return messagebox "Skin modifier not found"		
 			if skinOps.GetNumberBones sk == 0 do return messagebox "No bones"
