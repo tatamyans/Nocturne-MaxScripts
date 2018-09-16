@@ -120,6 +120,7 @@ fn break_mesh m =
 		append mshs obj
 	)
 	
+	subobjectlevel = 0	
 	return mshs
 )
 
@@ -147,4 +148,71 @@ fn traverse bns dst =
 	) 
 )
 
+fn add_skin_mod msh root =
+(	
+	bns = #()	
+	traverse root.children bns
+	
+	select msh
+	setCommandPanelTaskMode #modify 
+	addModifier msh (Skin())
+	local sk = msh.modifiers[#skin]
+	modPanel.setCurrentObject sk	
+	
+	for b in bns do skinOps.addbone sk b 0
+	completeRedraw()
+	
+	b0 = for i = 1 to bns.count collect i
+	w0 = for i = 1 to bns.count collect 0		
+	for i = 1 to  msh.numverts do ( skinOps.ReplaceVertexWeights sk i b0 w0 )
+	
+	sk.bone_limit = 3
+	sk.clearZeroLimit = 0.01
+	sk.ignoreBoneScale  = true
+	
+)
 
+fn selsg m sg =
+(
+	select m
+	setCommandPanelTaskMode #modify
+	modPanel.setCurrentObject m.baseObject
+	subobjectlevel = 3
+	
+	setFaceSelection m (for fc = 1 to (getNumFaces m) where ((getFaceSmoothGroup m fc) == sg) collect fc)	
+)
+
+fn cpselsets src dst =
+(
+	setCommandPanelTaskMode #modify
+	
+	select src
+	modPanel.setCurrentObject src.baseObject
+	subobjectlevel = 3
+	completeRedraw()
+	
+	if dst.faces.count != src.faces.count do return "face count mismatch"
+	if src.faces.selSetNames.count == 0 do return "nothing to copy"
+
+	local names	= #()
+	local data		= #()
+	
+	for i = 1 to src.faces.selSetNames.count do
+	(		
+		selset = src.faces.selSetNames[i]
+		append names selset
+		append data (for fc in src.faces[selset] collect  fc.index )
+	)
+	
+	subobjectlevel = 0
+	select dst
+	modPanel.setCurrentObject dst.baseObject
+	subobjectlevel = 3
+	completeRedraw()
+	
+	for i = 1 to names.count do dst.faces[names[i]] = data[i]
+	
+	print dst.faces.selSetNames.count
+	subobjectlevel = 0
+	"OK"
+)

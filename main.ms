@@ -654,10 +654,15 @@
 			if obj == undefined do return 0
 			
 			if classof obj != Editable_Mesh do return messagebox "Not an Editable_Mesh"	
-			max modify mode
-			sk = obj.modifiers[#skin]		
+			max modify mode 
+			sk = obj.modifiers[#skin] 
+			modPanel.setCurrentObject sk
 			if sk == undefined do return messagebox "Skin modifier not found"		
 			if skinOps.GetNumberBones sk == 0 do return messagebox "No bones"
+			
+			sk.bone_limit = 3
+			sk.clearZeroLimit = 0.01
+			sk.ignoreBoneScale  = true
 			
 			append tri.dfm.ld_mshs obj			
 			

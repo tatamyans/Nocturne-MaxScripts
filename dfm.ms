@@ -290,7 +290,7 @@ struct deformable
 		
 		for i = 1 to lods[lod][1] do 
 		( 			
-			id = i + voffs			
+			id = i + voffs 
 			for w in weights[id] do (skinOps.SetVertexWeights sk i w[1] w[2] )
 		)
 		
@@ -352,7 +352,8 @@ struct deformable
 	(
 		select m
 		sk = m.modifiers[#Skin]
-		setCommandPanelTaskMode #modify			
+		setCommandPanelTaskMode #modify
+		subobjectlevel = 0
 		modPanel.setCurrentObject sk
 		
 		dmBnsNum = skinOps.GetNumberBones sk
@@ -467,6 +468,7 @@ struct deformable
 			msh = ld_mshs[i]
 			select msh
 			sk = msh.modifiers[#skin]
+			subobjectlevel = 0
 			modPanel.setCurrentObject sk
 			
 			for v in msh.verts do
@@ -476,8 +478,9 @@ struct deformable
 				for j = 1 to nbones do 
 				(
 					b 		= skinOps.GetVertexWeightBoneID sk v.index j
-					w 		= skinOps.GetVertexWeight sk v.index j
-					pos	= ( v.pos * inverse skl.bones[b].transform ) / skl.scale
+					w 		= skinOps.GetVertexWeight sk v.index j					
+					
+					pos	= ( v.pos * inverse skl.bones[b].transform ) / skl.scale					
 					
 					format "%, %, %, %, %\n" (b - 1) w -pos.y pos.x pos.z to:f
 				) 
